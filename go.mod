@@ -1,3 +1,3 @@
-module github.com/estebangarcia21/subprocess
+module github.com/mwgamble/subprocess
 
 go 1.16

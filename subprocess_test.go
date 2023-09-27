@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/estebangarcia21/subprocess"
+	"github.com/mwgamble/subprocess"
 )
 
 func TestExec(t *testing.T) {
