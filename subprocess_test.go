@@ -3,7 +3,9 @@ package subprocess_test
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"os/exec"
+	"path"
 	"runtime"
 	"strings"
 	"testing"
@@ -103,6 +105,29 @@ func TestRandString(t *testing.T) {
 	if len(a) != strLen && len(b) != strLen {
 		t.Fatalf("strings are not of specified length: %d; a=%d; b=%d", strLen, len(a), len(b))
 	}
+}
+
+func TestContext(t *testing.T) {
+	wd, wdErr := os.Getwd()
+	if wdErr != nil {
+		t.Fatalf("failed to retrieve tests current working directory: %v", wdErr)
+	}
+	testsFolder := path.Join(wd, "tests")
+
+	crossPlatformTestMatrix{
+		"windows": subprocess.New("type", subprocess.Arg("testfile.txt"), subprocess.Context(testsFolder), subprocess.HideStdout),
+		"darwin":  subprocess.New("cat", subprocess.Arg("testfile.txt"), subprocess.Context(testsFolder), subprocess.HideStdout),
+		"linux":  subprocess.New("cat", subprocess.Arg("testfile.txt"), subprocess.Context(testsFolder), subprocess.HideStdout),
+	}.Exec(func(s *subprocess.Subprocess) {
+		if err := s.Exec(); err != nil {
+			t.Fatalf("received error while executing subprocess: %v", err)
+		}
+
+		stdout := s.StdoutText()
+		if stdout != "this is a test\n" {
+			t.Fatalf("failed to correctly read expected file")
+		}
+	})
 }
 
 func BenchmarkSubprocessLs(b *testing.B) {

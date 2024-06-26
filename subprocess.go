@@ -169,12 +169,7 @@ func (s *Subprocess) Exec() error {
 		cmd.Stderr = os.Stderr
 	}
 
-	wd, err := os.Getwd()
-	chwd := err == nil && s.context != ""
-
-	if chwd {
-		os.Chdir(s.context)
-	}
+	cmd.Dir = s.context
 
 	cmd.Start()
 
@@ -186,10 +181,6 @@ func (s *Subprocess) Exec() error {
 	})
 
 	cmd.Wait()
-
-	if chwd {
-		os.Chdir(wd)
-	}
 
 	s.exitCode = cmd.ProcessState.ExitCode()
 	if s.catchError && s.exitCode != 0 {
